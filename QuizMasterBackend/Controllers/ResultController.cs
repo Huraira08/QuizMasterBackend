@@ -12,40 +12,33 @@ namespace QuizMasterBackend.Controllers
     [ApiController]
     public class ResultController : ControllerBase
     {
-        private readonly IQuizItemRepository _quizItemRepository;
+        private readonly IResultRepository _resultRepository;
 
-        public ResultController(IQuizItemRepository quizItemRepository)
+        public ResultController(IResultRepository resultRepository)
         {
-            _quizItemRepository = quizItemRepository;
+            _resultRepository = resultRepository;
         }
 
         // Results
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetResults(string id)
+        public async Task<List<ResultDTO>> GetResults(string id)
         {
-            try
-            {
-                List<ResultDTO> results = await _quizItemRepository.GetResults(id);
-                return Ok(results);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex);
-            }
+            List<ResultDTO> results = await _resultRepository.GetResults(id);
+            return results;
         }
 
-        [HttpPost("{id}")]
-        public async Task<IActionResult> AddResult(ResultDTO resultDTO, string id)
+        [HttpPost()]
+        public async Task<IActionResult> AddResult(ResultDTO resultDTO)
         {
-            try
-            {
-                await _quizItemRepository.AddResult(resultDTO, id);
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex);
-            }
+            var newResult = await _resultRepository.AddResult(resultDTO);
+            return CreatedAtAction(nameof(GetResults), new {id = newResult.Id}, newResult);
+        }
+
+        [HttpGet("top10")]
+        public async Task<List<ResultDTO>> GetTop10()
+        {
+            List<ResultDTO> results = await _resultRepository.GetTop10Results();
+            return results;
         }
     }
 }

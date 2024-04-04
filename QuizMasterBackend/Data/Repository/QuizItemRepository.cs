@@ -12,12 +12,12 @@ namespace QuizMasterBackend.Data.Repository
             _db = db;
         }
 
-        public async Task<List<QuizItem>> GetAllQuizItems()
+        public async Task<List<QuizItem>> Get()
         {
             return await _db.QuizItems.ToListAsync();
         }
 
-        public async Task<QuizItem> GetQuizItem(int id)
+        public async Task<QuizItem> Get(int id)
         {
             QuizItem? quizItem = await _db.QuizItems.FirstOrDefaultAsync(qItem=>qItem.Id == id);
             if(quizItem == null)
@@ -28,75 +28,33 @@ namespace QuizMasterBackend.Data.Repository
 
         }
 
-        public async Task AddQuizItem(QuizItem quizItem)
+        public async Task<QuizItem?> AddQuizItem(QuizItem quizItem)
         {
             QuizItem? prevItem = await _db.QuizItems.FirstOrDefaultAsync(qItem=> qItem.Id == quizItem.Id);
             if(prevItem != null)
             {
-                throw new Exception("Item already exists");
+                //throw new Exception("Item already exists");
+                return null;
             }
             await _db.QuizItems.AddAsync(quizItem);
-            await _db.SaveChangesAsync();
+            int rowsAffected = await _db.SaveChangesAsync();
+            return quizItem;
         }
 
-        public async Task UpdateQuizItem(QuizItem newQuizItem)
+        public async Task<int> UpdateQuizItem(QuizItem newQuizItem)
         {
-            QuizItem oldQuizItem = await GetQuizItem(newQuizItem.Id);
+            QuizItem oldQuizItem = await Get(newQuizItem.Id);
             oldQuizItem.Question = newQuizItem.Question;
             oldQuizItem.Answers = newQuizItem.Answers;
             oldQuizItem.CorrectAnswerIndex = newQuizItem.CorrectAnswerIndex;
-            await _db.SaveChangesAsync();
+            return await _db.SaveChangesAsync();
         }
 
-        public async Task DeleteQuizItem(int id)
+        public async Task<int> DeleteQuizItem(int id)
         {
-            QuizItem quizItem = await GetQuizItem(id);
+            QuizItem quizItem = await Get(id);
             _db.QuizItems.Remove(quizItem);
-            await _db.SaveChangesAsync();
-        }
-
-        public async Task<List<ResultDTO>> GetResults(string id)
-        {
-            return await _db.Results.Where(r => r.UserId == id).Select(r=>new ResultDTO()
-            {
-                Id = r.Id,
-                AttemptedDate = r.AttemptedDate,
-                Score = r.Score,
-            })
-                .ToListAsync();
-        }
-
-        public async Task AddResult(ResultDTO resultDTO, string id)
-        {
-            ApplicationUser? user = await _db.Users.FirstOrDefaultAsync(u => u.Id == id);
-            if(user == null)
-            {
-                throw new Exception("User does not exist");
-            }
-
-            Result result = new Result()
-            {
-                AttemptedDate = resultDTO.AttemptedDate,
-                Score = resultDTO.Score,
-                UserId = id,
-            };
-
-            await _db.Results.AddAsync(result);
-            await _db.SaveChangesAsync();
-        }
-
-        public async Task<List<ResultDTO>> GetTop10Results()
-        {
-            return await _db.Results.OrderByDescending(result => result.Score)
-                .Take(10)
-                .Include(result => result.User)
-                .Select(result => new ResultDTO()
-                {
-                    Id = result.Id,
-                    AttemptedDate = result.AttemptedDate,
-                    Score = result.Score,
-                    Name = result.User.UserName
-                }).ToListAsync();
+            return await _db.SaveChangesAsync();
         }
     }
 }

@@ -24,28 +24,22 @@ namespace QuizMasterBackend.Controllers
         [HttpGet]
         public async Task<List<QuizItem>> Get()
         {
-            return await _quizItemRepository.GetAllQuizItems();
+            return await _quizItemRepository.Get();
         }
 
         // GET api/<QuizItemController>/5
         [HttpGet("{id}")]
         public async Task<QuizItem> Get(int id)
         {
-            return await _quizItemRepository.GetQuizItem(id);
+            return await _quizItemRepository.Get(id);
         }
 
         // POST api/<QuizItemController>
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] QuizItem quizItem)
         {
-            try
-            {
-                await _quizItemRepository.AddQuizItem(quizItem);
-                return Ok();
-            }catch(Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            quizItem = await _quizItemRepository.AddQuizItem(quizItem);
+            return CreatedAtAction(nameof(Get), new { id = quizItem.Id }, quizItem);
         }
 
         // PUT api/<QuizItemController>/5
@@ -54,8 +48,11 @@ namespace QuizMasterBackend.Controllers
         {
             try
             {
-                await _quizItemRepository.UpdateQuizItem(newQuizItem);
-                return Ok();
+                int rowsAffected = await _quizItemRepository.UpdateQuizItem(newQuizItem);
+                return new JsonResult(new
+                {
+                    rowsAffected
+                });
             }catch (Exception ex)
             {
                 return BadRequest(ex.Message);
@@ -68,24 +65,13 @@ namespace QuizMasterBackend.Controllers
         {
             try
             {
-                await _quizItemRepository.DeleteQuizItem(id);
-                return Ok();
+                int rowsAffected = await _quizItemRepository.DeleteQuizItem(id);
+                return new JsonResult( new {
+                    rowsAffected
+                });
             }catch(Exception ex)
             {
                 return BadRequest(ex.Message);
-            }
-        }
-
-        [HttpGet("top10")]
-        public async Task<IActionResult> GetTop10()
-        {
-            try
-            {
-                return Ok(await _quizItemRepository.GetTop10Results());
-            }
-            catch (Exception e)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, new {error= e.Message });
             }
         }
     }

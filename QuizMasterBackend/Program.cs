@@ -51,6 +51,7 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddCors();
 
 builder.Services.AddScoped<IQuizItemRepository, QuizItemRepository>();
+builder.Services.AddScoped<IResultRepository, ResultRepository>();
 
 var app = builder.Build();
 
