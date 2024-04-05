@@ -29,16 +29,28 @@ namespace QuizMasterBackend.Controllers
 
         // GET api/<QuizItemController>/5
         [HttpGet("{id}")]
-        public async Task<QuizItem> Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
-            return await _quizItemRepository.Get(id);
+            QuizItem? quizItem = await _quizItemRepository.Get(id);
+            if(quizItem != null)
+            {
+                return new JsonResult(new {quizItem});
+            }
+            else
+            {
+                return BadRequest();
+            }
         }
 
         // POST api/<QuizItemController>
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] QuizItem quizItem)
         {
-            quizItem = await _quizItemRepository.AddQuizItem(quizItem);
+            if(quizItem.Id != 0)
+            {
+                return BadRequest();
+            }
+            await _quizItemRepository.AddOrUpdate(quizItem);
             return CreatedAtAction(nameof(Get), new { id = quizItem.Id }, quizItem);
         }
 
@@ -46,33 +58,30 @@ namespace QuizMasterBackend.Controllers
         [HttpPut]
         public async Task<IActionResult> Put([FromBody] QuizItem newQuizItem)
         {
-            try
+            if(newQuizItem.Id < 1)
             {
-                int rowsAffected = await _quizItemRepository.UpdateQuizItem(newQuizItem);
-                return new JsonResult(new
-                {
-                    rowsAffected
-                });
-            }catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
+                return BadRequest();
             }
+            int rowsAffected = await _quizItemRepository.AddOrUpdate(newQuizItem);
+            return new JsonResult(new
+            {
+                rowsAffected
+            });
         }
 
         // DELETE api/<QuizItemController>/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            try
+            if(id < 1)
             {
-                int rowsAffected = await _quizItemRepository.DeleteQuizItem(id);
-                return new JsonResult( new {
-                    rowsAffected
-                });
-            }catch(Exception ex)
-            {
-                return BadRequest(ex.Message);
+                return BadRequest();
             }
+            int rowsAffected = await _quizItemRepository.DeleteQuizItem(id);
+            return new JsonResult(new
+            {
+                rowsAffected
+            });
         }
     }
 }

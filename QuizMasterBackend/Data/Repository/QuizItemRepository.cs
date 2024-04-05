@@ -14,45 +14,58 @@ namespace QuizMasterBackend.Data.Repository
 
         public async Task<List<QuizItem>> Get()
         {
-            return await _db.QuizItems.ToListAsync();
+            List<QuizItem> quizItems = await _db.QuizItems.ToListAsync();
+            return quizItems;
         }
 
-        public async Task<QuizItem> Get(int id)
+        public async Task<QuizItem?> Get(int id)
         {
             QuizItem? quizItem = await _db.QuizItems.FirstOrDefaultAsync(qItem=>qItem.Id == id);
-            if(quizItem == null)
-            {
-                throw new Exception("Item not found");
-            }
             return quizItem;
-
         }
 
-        public async Task<QuizItem?> AddQuizItem(QuizItem quizItem)
+        public async Task<int> AddOrUpdate(QuizItem quizItem)
         {
-            QuizItem? prevItem = await _db.QuizItems.FirstOrDefaultAsync(qItem=> qItem.Id == quizItem.Id);
-            if(prevItem != null)
+            if(quizItem.Id == 0)
             {
-                //throw new Exception("Item already exists");
-                return null;
+                await _db.QuizItems.AddAsync(quizItem);
             }
-            await _db.QuizItems.AddAsync(quizItem);
+            else
+            {
+                QuizItem? prevItem = await Get(quizItem.Id);
+                if (prevItem == null)
+                {
+                    return -1;
+                }
+                prevItem.Question = quizItem.Question;
+                prevItem.Answers = quizItem.Answers;
+                prevItem.CorrectAnswerIndex = quizItem.CorrectAnswerIndex;
+            }
+            
             int rowsAffected = await _db.SaveChangesAsync();
-            return quizItem;
+            return rowsAffected;
         }
 
-        public async Task<int> UpdateQuizItem(QuizItem newQuizItem)
-        {
-            QuizItem oldQuizItem = await Get(newQuizItem.Id);
-            oldQuizItem.Question = newQuizItem.Question;
-            oldQuizItem.Answers = newQuizItem.Answers;
-            oldQuizItem.CorrectAnswerIndex = newQuizItem.CorrectAnswerIndex;
-            return await _db.SaveChangesAsync();
-        }
+        //public async Task<int> UpdateQuizItem(QuizItem newQuizItem)
+        //{
+        //    QuizItem? oldQuizItem = await Get(newQuizItem.Id);
+        //    if(oldQuizItem == null)
+        //    {
+        //        return 0;
+        //    }
+        //    oldQuizItem.Question = newQuizItem.Question;
+        //    oldQuizItem.Answers = newQuizItem.Answers;
+        //    oldQuizItem.CorrectAnswerIndex = newQuizItem.CorrectAnswerIndex;
+        //    return await _db.SaveChangesAsync();
+        //}
 
         public async Task<int> DeleteQuizItem(int id)
         {
-            QuizItem quizItem = await Get(id);
+            QuizItem? quizItem = await Get(id);
+            if(quizItem == null)
+            {
+                return 0;
+            }
             _db.QuizItems.Remove(quizItem);
             return await _db.SaveChangesAsync();
         }
