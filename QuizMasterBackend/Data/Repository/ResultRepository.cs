@@ -13,13 +13,14 @@ namespace QuizMasterBackend.Data.Repository
 
         public async Task<List<ResultDTO>> GetResults(string id)
         {
-            return await _db.Results.Where(r => r.UserId == id).Select(r => new ResultDTO()
+            List<ResultDTO> results = await _db.Results.Where(r => r.UserId == id).Select(r => new ResultDTO()
             {
                 Id = r.Id,
                 AttemptedDate = r.AttemptedDate,
                 Score = r.Score,
             })
                 .ToListAsync();
+            return results;
         }
 
         public async Task<ResultDTO?> AddResult(ResultDTO resultDTO)
@@ -45,7 +46,7 @@ namespace QuizMasterBackend.Data.Repository
 
         public async Task<List<ResultDTO>> GetTop10Results()
         {
-            return await _db.Results.OrderByDescending(result => result.Score)
+            List<ResultDTO> top10Results = await _db.Results.OrderByDescending(result => result.Score)
                 .Take(10)
                 .Include(result => result.User)
                 .Select(result => new ResultDTO()
@@ -55,6 +56,8 @@ namespace QuizMasterBackend.Data.Repository
                     Score = result.Score,
                     Name = result.User.UserName
                 }).ToListAsync();
+
+            return top10Results;
         }
     }
 }

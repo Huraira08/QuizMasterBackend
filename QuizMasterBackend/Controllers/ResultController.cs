@@ -30,8 +30,15 @@ namespace QuizMasterBackend.Controllers
         [HttpPost()]
         public async Task<IActionResult> AddResult(ResultDTO resultDTO)
         {
-            var newResult = await _resultRepository.AddResult(resultDTO);
-            return CreatedAtAction(nameof(GetResults), new {id = newResult.Id}, newResult);
+            ResultDTO? newResult = await _resultRepository.AddResult(resultDTO);
+            if (newResult != null)
+            {
+                return CreatedAtAction(nameof(GetResults), new { id = newResult.Id }, newResult);
+            }
+            else
+            {
+                return BadRequest("Invalid user id");
+            }
         }
 
         [HttpGet("top10")]
