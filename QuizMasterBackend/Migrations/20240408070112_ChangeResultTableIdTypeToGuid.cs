@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace QuizMasterBackend.Migrations
 {
     /// <inheritdoc />
-    public partial class AddIdentityTablesAndQuizItemTableWithSeeder : Migration
+    public partial class ChangeResultTableIdTypeToGuid : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -173,6 +173,26 @@ namespace QuizMasterBackend.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Results",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AttemptedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Score = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Results", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Results_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.InsertData(
                 table: "QuizItems",
                 columns: new[] { "Id", "Answers", "CorrectAnswerIndex", "Question" },
@@ -222,6 +242,11 @@ namespace QuizMasterBackend.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Results_UserId",
+                table: "Results",
+                column: "UserId");
         }
 
         /// <inheritdoc />
@@ -244,6 +269,9 @@ namespace QuizMasterBackend.Migrations
 
             migrationBuilder.DropTable(
                 name: "QuizItems");
+
+            migrationBuilder.DropTable(
+                name: "Results");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

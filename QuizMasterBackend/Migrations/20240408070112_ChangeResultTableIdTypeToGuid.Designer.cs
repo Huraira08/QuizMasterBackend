@@ -12,8 +12,8 @@ using QuizMasterBackend.Data;
 namespace QuizMasterBackend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240321082824_AddIdentityTablesAndQuizItemTableWithSeeder")]
-    partial class AddIdentityTablesAndQuizItemTableWithSeeder
+    [Migration("20240408070112_ChangeResultTableIdTypeToGuid")]
+    partial class ChangeResultTableIdTypeToGuid
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -277,6 +277,29 @@ namespace QuizMasterBackend.Migrations
                         });
                 });
 
+            modelBuilder.Entity("QuizMasterBackend.Models.Result", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("AttemptedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Score")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Results");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -326,6 +349,22 @@ namespace QuizMasterBackend.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("QuizMasterBackend.Models.Result", b =>
+                {
+                    b.HasOne("QuizMasterBackend.Data.ApplicationUser", "User")
+                        .WithMany("Results")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("QuizMasterBackend.Data.ApplicationUser", b =>
+                {
+                    b.Navigation("Results");
                 });
 #pragma warning restore 612, 618
         }

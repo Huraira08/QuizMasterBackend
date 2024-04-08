@@ -15,7 +15,7 @@ namespace QuizMasterBackend.Data.Repository
         {
             List<ResultDTO> results = await _db.Results.Where(r => r.UserId == id).Select(r => new ResultDTO()
             {
-                Id = r.Id,
+                Id = r.Id.ToString(),
                 AttemptedDate = r.AttemptedDate,
                 Score = r.Score,
             })
@@ -40,7 +40,7 @@ namespace QuizMasterBackend.Data.Repository
 
             await _db.Results.AddAsync(result);
             await _db.SaveChangesAsync();
-            resultDTO.Id = result.Id;
+            resultDTO.Id = result.Id.ToString();
             return resultDTO;
         }
 
@@ -51,7 +51,7 @@ namespace QuizMasterBackend.Data.Repository
                 .Include(result => result.User)
                 .Select(result => new ResultDTO()
                 {
-                    Id = result.Id,
+                    Id = result.Id.ToString(),
                     AttemptedDate = result.AttemptedDate,
                     Score = result.Score,
                     Name = result.User.UserName

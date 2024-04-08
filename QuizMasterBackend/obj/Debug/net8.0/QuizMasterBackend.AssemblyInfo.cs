@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("QuizMasterBackend")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d615abb861b11da421688a7db8e64d45defb1366")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c74d08c08f985cd288bd74a692ee9f6ae48a43c8")]
 [assembly: System.Reflection.AssemblyProductAttribute("QuizMasterBackend")]
 [assembly: System.Reflection.AssemblyTitleAttribute("QuizMasterBackend")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

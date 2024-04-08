@@ -20,10 +20,10 @@ namespace QuizMasterBackend.Controllers
         }
 
         // Results
-        [HttpGet("{id}")]
-        public async Task<List<ResultDTO>> GetResults(string id)
+        [HttpGet("{userId}")]
+        public async Task<List<ResultDTO>> GetResults(string userId)
         {
-            List<ResultDTO> results = await _resultRepository.GetResults(id);
+            List<ResultDTO> results = await _resultRepository.GetResults(userId);
             return results;
         }
 
